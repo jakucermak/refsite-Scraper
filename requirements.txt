@@ -6,6 +6,6 @@ requests[socks]
 requests[security]
 cryptography
 sqlalchemy
-
 stem
 fake-useragent
+pytest
