@@ -3,8 +3,8 @@ FROM python:3.12.1-bullseye
 # Vytvoření pracovního adresáře v kontejneru
 WORKDIR /app
 
-# Kopírování zdrojových souborů do kontejneru
-COPY . /app
+COPY ./src ./src
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 

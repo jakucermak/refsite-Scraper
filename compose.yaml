@@ -3,9 +3,41 @@ services:
     build: .
     ports:
       - "8000:8000"
+    env_file:
+      - .env
   db:
     image: postgres:14-alpine
     ports:
       - 5432:5432
     env_file:
       - .env
+#pull the Docker image, by running:
+#   docker-compose pull obfs4-bridge
+  obfs4-bridge:
+    image: thetorproject/obfs4-bridge:latest
+    networks:
+      - obfs4_bridge_external_network
+    environment:
+      # Exit with an error message if OR_PORT is unset or empty.
+      - OR_PORT=${OR_PORT:?Env var OR_PORT is not set.}
+      # Exit with an error message if PT_PORT is unset or empty.
+      - PT_PORT=${PT_PORT:?Env var PT_PORT is not set.}
+      # Exit with an error message if EMAIL is unset or empty.
+      - EMAIL=${EMAIL:?Env var EMAIL is not set.}
+      # Nickname with default value: "DockerObfs4Bridge"
+      - NICKNAME=${NICKNAME:-DockerObfs4Bridge}
+    env_file:
+      - .env
+    volumes:
+      - data:/var/lib/tor
+    ports:
+      - ${OR_PORT}:${OR_PORT}
+      - ${PT_PORT}:${PT_PORT}
+    restart: unless-stopped
+
+volumes:
+  data:
+    name: tor-datadir-${OR_PORT}-${PT_PORT}
+
+networks:
+  obfs4_bridge_external_network:

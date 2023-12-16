@@ -1,4 +1,11 @@
 beautifulsoup4
 fastapi
 uvicorn[standard]
+requests
+requests[socks]
+requests[security]
+cryptography
 sqlalchemy
+
+stem
+fake-useragent
