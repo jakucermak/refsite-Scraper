@@ -9,5 +9,8 @@ sqlalchemy
 stem
 fake-useragent
 pytest
+alembic
 lxml
 python-dotenv
+psycopg2-binary
+pytest-sqlalchemy-mock

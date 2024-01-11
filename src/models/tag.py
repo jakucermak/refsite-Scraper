@@ -2,7 +2,8 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from src.psql.db import Base
-from post import association_table
+from .associations import association_table
+
 
 class Tag(Base):
     __tablename__ = 'tags'
