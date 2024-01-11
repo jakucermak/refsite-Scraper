@@ -1,0 +1,45 @@
+import pytest
+
+
+@pytest.fixture
+def html_page():
+    html_content = """<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>
+    Title
+    </title>
+</head>
+<body>
+<section class="main">
+    <div class="content flex">
+        <div class="box12 maincontent">
+            <article class="item" onclick="document.location='/cz/ekis/i-ekis/180550'">
+            </article>
+            <article class="item" onclick="document.location='/cz/ekis/i-ekis/180453'">
+            </article>
+            <article class="item" onclick="document.location='/cz/ekis/i-ekis/180457'">
+            </article>
+            <div class="pager">
+                <span class="active"> 1 </span>
+                <span class="delimiter"> | </span>
+                <a href="/cz2/ekis/i-ekis">2</a>
+                <span class="delimiter"> | </span>
+                <a href="/cz3/ekis/i-ekis">3</a>
+                <span class="delimiter"> | </span>
+                <a href="/cz4/ekis/i-ekis">4</a>
+                <span class="delimiter"> | </span>
+                <span class="dots">  .. </span>
+                <span class="delimiter"> | </span>
+                <a href="/cz492/ekis/i-ekis">492</a>
+                <span class="delimiter"> | </span>
+                <a href="/cz2/ekis/i-ekis">»</a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+"""
+    yield [line.strip() for line in html_content.splitlines()]
+

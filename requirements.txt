@@ -9,3 +9,5 @@ sqlalchemy
 stem
 fake-useragent
 pytest
+lxml
+python-dotenv
