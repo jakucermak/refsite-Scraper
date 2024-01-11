@@ -9,9 +9,9 @@ proxies = {
 }
 
 
-def tor_req(req: requests.get):
+def tor_req(url):
     headers = {'User-Agent': UserAgent().random}
     with Controller.from_port(port=9051) as c:
         c.authenticate()
         c.signal(Signal.NEWNYM)
-        return req(headers=headers, proxies=proxies)
+        return requests.get(url, headers=headers, proxies=proxies)
