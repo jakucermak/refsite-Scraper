@@ -1,3 +1,5 @@
+from enum import Enum
+
 from src.environment import EKIS_BASE_URL
 from bs4 import BeautifulSoup
 from requests import Response
@@ -34,8 +36,44 @@ def get_next_page(parse_html):
             next_page = a['href'].removeprefix("/cz").removesuffix('/ekis/i-ekis')
             return next_page
 
+
 def get_tags(parse_html):
     response_about_group = parse_html.find("div", class_="box-5 sz-s clr-gray odpovida")
     tags_group = response_about_group.find("div", class_="mt-1")
     tags = [tag.text for tag in tags_group.find_all("a")]
     return tags
+
+
+class QASectionType(Enum):
+    QUESTION = "question"
+    ANSWER = "answer"
+
+
+def retrieve_qa_content(parse_html, type: QASectionType):
+
+    match type.value:
+        case "question":
+            class_ = "fnt-bold mt-1 mb-3"
+        case "answer":
+            class_ = "mt-1 mb-1"
+        case _:
+            raise Exception("Did not set class attributes")
+
+    contents = parse_html.find("div", class_=class_).contents
+
+    if '\n' == contents[-1]:
+        contents.pop()
+
+    cleared_text = clean_text(contents)
+    final_text = "\n".join(cleared_text)
+    return final_text
+
+
+def clean_text(contents):
+    cleared_text = []
+    for line in contents:
+        if "<br/>" != str(line):
+            line = line.lstrip("\n\r").rstrip()
+            line = ' '.join(item for item in line.split(" ") if item)
+            cleared_text.append(line)
+    return cleared_text

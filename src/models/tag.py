@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from __future__ import annotations
+from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship, mapped_column
+from sqlalchemy.orm import Mapped
 
 from src.psql.db import Base
 from .associations import association_table
@@ -7,6 +9,6 @@ from .associations import association_table
 
 class Tag(Base):
     __tablename__ = 'tags'
-    id = Column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     name = Column(String())
-    posts = relationship('Post',secondary=association_table, back_populates='tags')
+    posts = relationship('Post', secondary=association_table, back_populates='tags')

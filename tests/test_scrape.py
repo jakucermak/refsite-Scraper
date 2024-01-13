@@ -4,7 +4,8 @@ import pytest
 import requests
 
 import src.utils.scraper as scraper
-from fixtures import html_page
+from fixtures import html_page, answer_text, question_text
+from src.utils.scraper import QASectionType
 
 
 def test_scrape():
@@ -57,4 +58,18 @@ def test_get_tags_from_detail():
     expected = ["Dotace a financování projektů","En. audity, en. průkazy a štítky budov",
                 "Tepelná čerpadla, geotermální energie", "Vytápění", "Zateplování budov"].sort()
 
+    assert actual == expected
+
+
+def test_scrape_answer(answer_text):
+    with open("test_html/detail_page.html") as f:
+        actual = scraper.retrieve_qa_content(scraper.parse_response(f), QASectionType.ANSWER)
+    expected = answer_text
+    assert actual == expected
+
+
+def test_scrape_question(question_text):
+    with open("test_html/detail_page.html") as f:
+        actual = scraper.retrieve_qa_content(scraper.parse_response(f), QASectionType.QUESTION)
+    expected = question_text
     assert actual == expected
