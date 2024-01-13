@@ -15,9 +15,8 @@ def parse_response(html):
 
 
 def get_ids(parse_html):
-    parsed_html = parse_html
 
-    items = parsed_html.find_all("article", class_="item")
+    items = parse_html.find_all("article", class_="item")
     post_ids = []
 
     for item in items:
@@ -34,3 +33,9 @@ def get_next_page(parse_html):
         if a.string == '»':
             next_page = a['href'].removeprefix("/cz").removesuffix('/ekis/i-ekis')
             return next_page
+
+def get_tags(parse_html):
+    response_about_group = parse_html.find("div", class_="box-5 sz-s clr-gray odpovida")
+    tags_group = response_about_group.find("div", class_="mt-1")
+    tags = [tag.text for tag in tags_group.find_all("a")]
+    return tags

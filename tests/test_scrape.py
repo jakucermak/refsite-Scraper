@@ -48,3 +48,13 @@ def test_next_page():
 
     expected = "2"
     assert next_page == expected
+
+
+def test_get_tags_from_detail():
+    with open("test_html/detail_page.html") as f:
+        actual = scraper.get_tags(scraper.parse_response(f)).sort()
+
+    expected = ["Dotace a financování projektů","En. audity, en. průkazy a štítky budov",
+                "Tepelná čerpadla, geotermální energie", "Vytápění", "Zateplování budov"].sort()
+
+    assert actual == expected
