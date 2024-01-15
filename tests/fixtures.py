@@ -1,4 +1,14 @@
 import pytest
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.orm import sessionmaker
+from pytest_postgresql import factories
+from pytest_postgresql.janitor import DatabaseJanitor
+from src.models.tag import Tag
+from src.models.post import Post
+from src.models.associations import association_table
+
+from src.psql.db import metadata
+
 
 
 @pytest.fixture
@@ -106,3 +116,34 @@ def question_text():
     text = """Dobrý den, chtěla jsem se zeptat ohledně dotací . Budeme dělat tepelné čerpadlo, nová okna a vchodové dveře a chtěli bychom zjistit, jestli by se nám vyplatilo zažádat o dotace. Vás mi to našlo pod zelená úsporám jako specialistu, který by nám s tím mohl poradit. Je to tak? Děkuji Krmelová"""
     yield text
 
+
+test_db = factories.postgresql_proc(port=None, dbname=None)
+
+
+@pytest.fixture()
+def db_session(test_db):
+    pg_host = test_db.host
+    pg_port = test_db.port
+    pg_user = test_db.user
+    pg_password = test_db.password
+    pg_db = test_db.dbname
+
+    with DatabaseJanitor(pg_user,pg_host,pg_port,pg_db,test_db.version,pg_password):
+        connection_string = f"postgresql+psycopg2://{pg_user}:@{pg_host}:{pg_port}/{pg_db}"
+        engine = create_engine(connection_string)
+        with engine.connect() as conn:
+            metadata.create_all(conn)
+            SessionLocal = sessionmaker(bind=engine)
+            session = SessionLocal()
+            yield session
+            session.close()
+
+
+@pytest.fixture()
+def tags():
+    tags = ["tag1", "tag2"]
+    test_objs = []
+    for idx, tag_name in zip(range(2),tags):
+        test_objs.append(Tag(id=idx,name=tag_name))
+
+    return test_objs

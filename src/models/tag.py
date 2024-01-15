@@ -1,6 +1,6 @@
 from __future__ import annotations
 from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship, mapped_column
+from sqlalchemy.orm import relationship, mapped_column, Session
 from sqlalchemy.orm import Mapped
 
 from src.psql.db import Base
@@ -12,3 +12,8 @@ class Tag(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name = Column(String())
     posts = relationship('Post', secondary=association_table, back_populates='tags')
+
+    @classmethod
+    def get_by_name(cls, db: Session, name) -> Tag:
+        query = db.query(cls).filter(cls.name == name).first()
+        return query
