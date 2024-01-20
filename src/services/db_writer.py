@@ -9,19 +9,20 @@ def create_post(id: int, q: str, a: str) -> Post:
     return post
 
 
-def create_tag(db: Session, name: str) -> Tag:
+def create_tag_obj(db: Session, name) -> Tag:
     tag = Tag.get_by_name(db, name)
-    if 0 == tag.count():
+    if None is tag:
         tag = Tag(name=name)
-        return tag
+        db.add(tag)
+        db.commit()
+        return Tag.get_by_name(db, name)
     else:
         return tag
 
 
-def create_tag_and_post(db: Session, tags: [Tag], post: Post):
+def write_tag_and_post(db: Session, tags: [Tag], post: Post):
     for tag in tags:
         post.tags.append(tag)
-        tag.posts.append(post)
 
     nested_list = [tags, post]
 
@@ -31,7 +32,7 @@ def create_tag_and_post(db: Session, tags: [Tag], post: Post):
     db.commit()
 
 
-def flat_list(nested_list):
+def flat_list(nested_list: list):
     flatten_list = []
     for item in nested_list:
         if isinstance(item, list):

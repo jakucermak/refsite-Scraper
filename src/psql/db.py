@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 import src.environment as env
+
 SQLALCHEMY_DATABASE_URL = "postgresql://{}:{}@{}:{}/{}".format(env.POSTGRES_USER,
                                                                env.POSTGRES_PASSWORD,
                                                                env.POSTGRES_HOST,

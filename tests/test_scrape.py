@@ -4,7 +4,7 @@ import pytest
 import requests
 
 import src.utils.scraper as scraper
-from fixtures import html_page, answer_text, question_text
+from conftest import html_page, answer_text, question_text
 from src.utils.scraper import QASectionType
 
 
