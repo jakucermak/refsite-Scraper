@@ -2,3 +2,5 @@
 .venv
 pyrightconfig.json
 .idea
+*__pycache__*
+/app.log

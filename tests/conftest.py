@@ -1,14 +1,12 @@
 import pytest
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker
 from pytest_postgresql import factories
 from pytest_postgresql.janitor import DatabaseJanitor
-from src.models.tag import Tag
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 from src.models.post import Post
-from src.models.associations import association_table
-
-from src.psql.db import metadata
-
+from src.psql.db import Base
+from src.services.db_writer import create_tag_obj
 
 
 @pytest.fixture
@@ -52,6 +50,7 @@ def html_page():
 </html>
 """
     yield [line.strip() for line in html_content.splitlines()]
+
 
 @pytest.fixture()
 def answer_text():
@@ -117,33 +116,68 @@ def question_text():
     yield text
 
 
-test_db = factories.postgresql_proc(port=None, dbname=None)
+db = factories.postgresql_proc(port=1033, dbname="tests")
 
 
-@pytest.fixture()
-def db_session(test_db):
-    pg_host = test_db.host
-    pg_port = test_db.port
-    pg_user = test_db.user
-    pg_password = test_db.password
-    pg_db = test_db.dbname
+@pytest.fixture(scope="function")
+def db_session(db):
+    pg_host = db.host
+    pg_port = db.port
+    pg_user = db.user
+    pg_password = db.password
+    pg_db = db.dbname
 
-    with DatabaseJanitor(pg_user,pg_host,pg_port,pg_db,test_db.version,pg_password):
+    with DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, db.version, pg_password):
         connection_string = f"postgresql+psycopg2://{pg_user}:@{pg_host}:{pg_port}/{pg_db}"
         engine = create_engine(connection_string)
-        with engine.connect() as conn:
-            metadata.create_all(conn)
-            SessionLocal = sessionmaker(bind=engine)
-            session = SessionLocal()
-            yield session
-            session.close()
+        session = scoped_session(sessionmaker())
+        session.configure(bind=engine)
+        Base.metadata.bind = engine
+        Base.metadata.create_all(bind=engine)
+
+        yield session
+        session.close()
 
 
 @pytest.fixture()
 def tags():
     tags = ["tag1", "tag2"]
-    test_objs = []
-    for idx, tag_name in zip(range(2),tags):
-        test_objs.append(Tag(id=idx,name=tag_name))
+    return tags
 
-    return test_objs
+
+@pytest.fixture()
+def stored_tags(db_session, tags):
+    tags_objects = []
+    for tag in tags:
+        tags_objects.append(create_tag_obj(db_session, tag))
+
+    db_session.add_all(tags_objects)
+    db_session.commit()
+
+
+@pytest.fixture()
+def tag3():
+    yield "tag3"
+
+
+@pytest.fixture()
+def tag4():
+    yield "tag4"
+
+
+@pytest.fixture()
+def tag5():
+    yield "tag5"
+
+
+@pytest.fixture()
+def post1():
+    post = Post(id=1, question="What is your favorite", answer="This and that!")
+    yield post
+
+
+@pytest.fixture()
+def post2():
+    post = Post(id=2, question="Your favourite music artist, what is",
+                answer="Figrin D’an and the Modal Nodes, Master Yoda")
+    yield post

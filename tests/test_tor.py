@@ -1,6 +1,7 @@
 from time import sleep
 
-from  src.utils.tor_req import tor_req
+from src.utils.req import tor_req
+
 
 class TestTor:
     def test_tor(self):

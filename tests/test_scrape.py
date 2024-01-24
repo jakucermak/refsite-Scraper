@@ -4,7 +4,7 @@ import pytest
 import requests
 
 import src.utils.scraper as scraper
-from fixtures import html_page, answer_text, question_text
+from conftest import html_page, answer_text, question_text
 from src.utils.scraper import QASectionType
 
 
@@ -46,6 +46,14 @@ class TestScrape:
         next_page = scraper.get_next_page(parser)
 
         expected = "2"
+        assert next_page == expected
+
+    def test_none_page_found(self):
+        with open("test_html/last_page.html", "r") as f:
+            parser = scraper.parse_response(f)
+        next_page = scraper.get_next_page(parser)
+
+        expected = None
         assert next_page == expected
 
     def test_get_tags_from_detail(self):
