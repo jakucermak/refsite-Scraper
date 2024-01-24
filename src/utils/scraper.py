@@ -1,13 +1,15 @@
 from enum import Enum
 
-from src.environment import EKIS_BASE_URL
 from bs4 import BeautifulSoup
 from requests import Response
+
+from src.environment import EKIS_BASE_URL
 
 
 def scrape(request, page='', post_id="") -> Response:
     url = "{}/cz{}/ekis/i-ekis/{}".format(EKIS_BASE_URL, page, post_id)
     response = request(url)
+
     return response
 
 
@@ -17,7 +19,6 @@ def parse_response(html):
 
 
 def get_ids(parse_html):
-
     items = parse_html.find_all("article", class_="item")
     post_ids = []
 
@@ -28,13 +29,13 @@ def get_ids(parse_html):
     return post_ids
 
 
-def get_next_page(parse_html):
-
+def get_next_page(parse_html) -> str | None:
     pager = parse_html.find("div", class_="pager")
     for a in pager.find_all("a"):
         if a.string == '»':
             next_page = a['href'].removeprefix("/cz").removesuffix('/ekis/i-ekis')
             return next_page
+    return
 
 
 def get_tags(parse_html):
@@ -50,7 +51,6 @@ class QASectionType(Enum):
 
 
 def retrieve_qa_content(parse_html, type: QASectionType):
-
     match type.value:
         case "question":
             class_ = "fnt-bold mt-1 mb-3"

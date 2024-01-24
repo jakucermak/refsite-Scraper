@@ -1,20 +1,26 @@
+import pytest
+
 from conftest import db_session, stored_tags, tags, tag3, tag4, tag5, post1
 from src.models.associations import association_table
 from src.models.post import Post
 from src.models.tag import Tag
 from src.services.db_writer import flat_list, create_tag_obj, write_tag_and_post
 
+pytest_plugins = ('pytest_asyncio',)
 
-def test_nested_list():
+
+@pytest.mark.asyncio
+async def test_nested_list():
     nested_list = [[1, 2, 3, 4], 5, 6, 7]
     expected = [1, 2, 3, 4, 5, 6, 7]
-    act = flat_list(nested_list)
+    act = await flat_list(nested_list)
 
     assert act == expected
 
 
 class TestDatabase:
 
+    @pytest.mark.asyncio
     def test_empy_tag(self, db_session):
 
         result = db_session.query(Tag).all()
@@ -22,6 +28,7 @@ class TestDatabase:
 
         assert result_cnt == 0
 
+    @pytest.mark.asyncio
     def test_create_tag(self, db_session, tags):
         for tag_name in tags:
             create_tag_obj(db_session, tag_name)
@@ -33,6 +40,7 @@ class TestDatabase:
             assert actual.name == exp.name
             assert actual.id == exp.id
 
+    @pytest.mark.asyncio
     def test_duplicate_tag(self, db_session, stored_tags, tags):
         saved_tags = db_session.query(Tag).all()
         saved_tags_cnt = len(saved_tags)
@@ -44,6 +52,7 @@ class TestDatabase:
         for e, a in zip(saved_tags, tags_to_write):
             assert e.id == a.id
 
+    @pytest.mark.asyncio
     def test_add_tag(self, db_session, stored_tags, tag3):
         pre_stored_tags = db_session.query(Tag).all()
 
@@ -55,6 +64,7 @@ class TestDatabase:
         db_session.commit()
         assert len(db_session.query(Tag).all()) == 3
 
+    @pytest.mark.asyncio
     def test_write_post(self, db_session, post1, tags):
         pre_post = db_session.query(Post).all()
         pre_tags = db_session.query(Tag).all()
@@ -76,6 +86,7 @@ class TestDatabase:
         for e, a in zip(post1.tags, actual_post.tags):
             assert a == e
 
+    @pytest.mark.asyncio
     def test_write_posts(self, db_session, post1, tags, tag3, post2, tag5, tag4):
         tag_objs = [create_tag_obj(db_session, tag) for tag in tags]
         tag_objs.append(create_tag_obj(db_session, tag3))

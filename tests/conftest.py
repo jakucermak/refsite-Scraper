@@ -119,11 +119,6 @@ def question_text():
 db = factories.postgresql_proc(port=1033, dbname="tests")
 
 
-# @pytest.fixture(autouse=True)
-# def db():
-#     yield factories.postgresql_proc(port=None, dbname=None)
-
-
 @pytest.fixture(scope="function")
 def db_session(db):
     pg_host = db.host

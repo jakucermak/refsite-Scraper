@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import logging
 from typing import List
 
-from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship, mapped_column
+from sqlalchemy import Column, String, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import relationship, mapped_column
 
 from src.psql.db import Base
 from .associations import association_table
 from .tag import Tag
+
+logger = logging.getLogger(__name__)
 
 
 class Post(Base):
@@ -18,3 +22,16 @@ class Post(Base):
     question = Column(String)
     answer = Column(String)
     tags: Mapped[List[Tag]] = relationship("Tag", secondary=association_table, back_populates="posts")
+
+    @classmethod
+    async def check_for_post_exists(cls, db: AsyncSession, post_id: int) -> bool:
+        try:
+            result = await db.execute(select(cls).where(cls.id == post_id))
+            post = result.scalars().first()
+
+            if post is None:
+                return False
+            else:
+                return True
+        except Exception as e:
+            logger.exception(e)

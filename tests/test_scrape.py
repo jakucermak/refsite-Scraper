@@ -48,6 +48,14 @@ class TestScrape:
         expected = "2"
         assert next_page == expected
 
+    def test_none_page_found(self):
+        with open("test_html/last_page.html", "r") as f:
+            parser = scraper.parse_response(f)
+        next_page = scraper.get_next_page(parser)
+
+        expected = None
+        assert next_page == expected
+
     def test_get_tags_from_detail(self):
         with open("test_html/detail_page.html") as f:
             actual = scraper.get_tags(scraper.parse_response(f)).sort()
