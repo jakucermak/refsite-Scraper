@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import datetime
 import logging
 from typing import List
 
-from sqlalchemy import Column, String, select
+from sqlalchemy import Column, String, DateTime, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import relationship, mapped_column
@@ -21,6 +22,7 @@ class Post(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     question = Column(String)
     answer = Column(String)
+    time_created = Column(DateTime, default=datetime.datetime.utcnow)
     tags: Mapped[List[Tag]] = relationship("Tag", secondary=association_table, back_populates="posts")
 
     @classmethod
