@@ -49,7 +49,7 @@ class WebProcessor:
             response_text = scraper.scrape(get, post_id=post_id).text
         except Exception as e:
             logger.exception("Exception occurred while {}".format(e))
-            dropped_post = PostSerializer(post_id=post_id, reason=e)
+            dropped_post = PostSerializer(post_id=post_id, reason=f"{e}")
             self.dropped_posts.append(dropped_post)
             return
         parser = scraper.parse_response(response_text)

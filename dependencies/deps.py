@@ -11,8 +11,14 @@ logger = logging.getLogger(__name__)
 
 class IgnoreSpecificLogFilter(logging.Filter):
     def filter(self, record):
-        message_to_ignore = "Error while receiving a control message (SocketClosed): empty socket content"
-        return message_to_ignore not in record.getMessage()
+        # Seznam zpráv k ignorování
+        messages_to_ignore = [
+            "Error while receiving a control message (SocketClosed): empty socket content",
+            "Error while receiving a control message (SocketClosed): received exception \"peek of closed file\""
+        ]
+
+        # Vrátí False, pokud zpráva obsahuje některou z ignorovaných zpráv
+        return not any(message in record.getMessage() for message in messages_to_ignore)
 
 
 async def get_db() -> AsyncSession:
