@@ -1,11 +1,12 @@
 import logging
+from typing import List
 
 from fastapi import APIRouter, Depends
 
 from dependencies.async_iterator import AsyncListIterator
 from dependencies.deps import get_webprocessor
 from src.services.web_processor import WebProcessor
-from .serializers.posts_serializer import PostsSerializer, PostsModelSerializer
+from .serializers.posts_serializer import PostSerializer, PostsModelSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,6 @@ async def start_scrape(web_processor: WebProcessor = Depends(get_webprocessor)):
 
 
 @router.post("/posts/")
-async def retry_scrape(posts: PostsSerializer, web_processor: WebProcessor = Depends(get_webprocessor)):
-    async for dropped_post_id in AsyncListIterator(posts.post_ids):
-        await web_processor.retry_post(dropped_post_id)
+async def retry_scrape(posts: List[PostSerializer], web_processor: WebProcessor = Depends(get_webprocessor)):
+    async for dropped_post in AsyncListIterator(posts):
+        await web_processor.retry_post(dropped_post.post_id)

@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 
 
-class PostsSerializer(BaseModel):
-    post_ids: list[str]
+class PostSerializer(BaseModel):
+    post_id: str
+    reason: str
 
 
 class PostsModelSerializer(BaseModel):

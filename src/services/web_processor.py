@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import src.utils.scraper as scraper
 from dependencies.async_iterator import AsyncListIterator
+from src.routes.serializers.posts_serializer import PostSerializer
 from src.utils.req import get
 from .db_writer import create_post, create_tag_obj, write_tag_and_post
 
@@ -23,7 +24,7 @@ class WebProcessor:
         return cls._instance
 
     def __init__(self, db: AsyncSession):
-        self.dropped_post_ids = []
+        self.dropped_posts = []
         self.db = db
 
     async def __process_titled_page(self, page_no):
@@ -48,7 +49,8 @@ class WebProcessor:
             response_text = scraper.scrape(get, post_id=post_id).text
         except Exception as e:
             logger.exception("Exception occurred while {}".format(e))
-            self.dropped_post_ids.append(post_id)
+            dropped_post = PostSerializer(post_id=post_id, reason=e)
+            self.dropped_posts.append(dropped_post)
             return
         parser = scraper.parse_response(response_text)
         tags = AsyncListIterator(scraper.get_tags(parser))
@@ -57,7 +59,8 @@ class WebProcessor:
         a = scraper.retrieve_qa_content(parser, scraper.QASectionType.ANSWER)
 
         if None is q or None is a:
-            self.dropped_post_ids.append(post_id)
+            dropped_post = PostSerializer(post_id=post_id, reason="question or answer is None")
+            self.dropped_posts.append(dropped_post)
             return
 
         try:
@@ -92,7 +95,7 @@ class WebProcessor:
         return self.__current_post_url
 
     async def get_dropped_posts(self) -> AsyncListIterator:
-        return AsyncListIterator(self.dropped_post_ids)
+        return AsyncListIterator(self.dropped_posts)
 
     async def retry_post(self, post_id: str):
         await self.__process_detail_page(post_id)
