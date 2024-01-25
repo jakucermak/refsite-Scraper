@@ -25,7 +25,7 @@ def tor_req(url):
         try:
             return requests.get(url, headers=headers, proxies=proxies)
         except requests.exceptions.ConnectionError as e:
-            logger.error("Connection error", e)
+            logger.error(f"Connection error {repr(e)}")
             return
 
 

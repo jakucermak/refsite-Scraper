@@ -65,6 +65,12 @@ class TestScrape:
 
         assert actual == expected
 
+    def test_get_date_from_detail(self):
+        with open("test_html/detail_page.html") as f:
+            actual = scraper.get_date_post(scraper.parse_response(f))
+        expected = '14.12.23'
+        assert actual == expected
+
     def test_scrape_answer(self, answer_text):
         with open("test_html/detail_page.html") as f:
             actual = scraper.retrieve_qa_content(scraper.parse_response(f), QASectionType.ANSWER)

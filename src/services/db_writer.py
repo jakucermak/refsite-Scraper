@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,11 +10,11 @@ from src.models.tag import Tag
 logger = logging.getLogger(__name__)
 
 
-async def create_post(db: AsyncSession, id: int, q: str, a: str) -> Post:
+async def create_post(db: AsyncSession, id: int, q: str, a: str, date: str) -> Post:
     post_exists = await Post.check_for_post_exists(db, id)
-
+    date = datetime.strptime(date, "%d.%m.%Y").date()
     if not post_exists:
-        post = Post(id=id, question=q, answer=a)
+        post = Post(id=id, question=q, answer=a, date=date)
         logger.info(f"Created post with id: {post.id}")
         return post
     logger.info(f"Post with id: {id} already exists")

@@ -34,4 +34,5 @@ async def start_scrape(web_processor: WebProcessor = Depends(get_webprocessor)):
 @router.post("/posts/")
 async def retry_scrape(posts: List[PostSerializer], web_processor: WebProcessor = Depends(get_webprocessor)):
     async for dropped_post in AsyncListIterator(posts):
+        web_processor.remove_id_dropped_posts(dropped_post.post_id)
         await web_processor.retry_post(dropped_post.post_id)

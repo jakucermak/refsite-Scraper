@@ -48,8 +48,8 @@ class WebProcessor:
         try:
             response_text = scraper.scrape(get, post_id=post_id).text
         except Exception as e:
-            logger.exception("Exception occurred while {}".format(e))
-            dropped_post = PostSerializer(post_id=post_id, reason=f"{e}")
+            logger.exception("Exception occurred while {}".format(repr(e)))
+            dropped_post = PostSerializer(post_id=post_id, reason=f"{repr(e)}")
             self.dropped_posts.append(dropped_post)
             return
         parser = scraper.parse_response(response_text)
@@ -73,7 +73,7 @@ class WebProcessor:
             tag_obj = await create_tag_obj(self.db, tag)
             tag_objs.append(tag_obj)
 
-        post = await create_post(self.db, post_id, q, a)
+        post = await create_post(self.db, post_id, q, a, date)
 
         try:
             if post is not None:
@@ -81,7 +81,7 @@ class WebProcessor:
             else:
                 return
         except Exception as e:
-            logger.error("Error writing to DB with error {}".format(e))
+            logger.error("Error writing to DB with error {}".format(repr(e)))
 
     async def start_scrape(self):
         while self.__next_page is not None:
@@ -99,3 +99,9 @@ class WebProcessor:
 
     async def retry_post(self, post_id: str):
         await self.__process_detail_page(post_id)
+
+    def remove_id_dropped_posts(self, post_id: str):
+        try:
+            self.dropped_posts.remove(post_id)
+        except ValueError as e:
+            logger.error("Could not remove post with id {} because of {}".format(post_id, repr(e)))

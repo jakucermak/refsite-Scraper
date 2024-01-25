@@ -14,10 +14,9 @@ def scrape(r, page='', post_id="") -> Response:
     url = "{}/cz{}/ekis/i-ekis/{}".format(EKIS_BASE_URL, page, post_id)
     try:
         response = r(url)
-
         return response
     except RE as e:
-        logger.error(e)
+        logger.error(repr(e))
 
 
 def parse_response(html):
@@ -80,6 +79,12 @@ def retrieve_qa_content(parse_html, type: QASectionType):
     cleared_text = clean_text(contents)
     final_text = "\n".join(cleared_text)
     return final_text
+
+
+def get_date_post(parse_html):
+    content = parse_html.find("span", class_="bg-clr-orange clr-light sz-s color-block").contents
+    split = content[0].split(" ")
+    return split[1]
 
 
 def clean_text(contents):

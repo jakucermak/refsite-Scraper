@@ -27,7 +27,7 @@ async def get_db() -> AsyncSession:
         logger.info("Creating database tables session")
         yield db
     except Exception as e:
-        logger.exception(e)
+        logger.exception(repr(e))
     finally:
         logger.info("Closing db")
         await db.close()
