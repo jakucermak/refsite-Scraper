@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends
 
 from dependencies.async_iterator import AsyncListIterator
 from dependencies.deps import get_webprocessor
-from serializers.posts_serializer import PostsSerializer
 from src.services.web_processor import WebProcessor
+from .serializers.posts_serializer import PostsSerializer, PostsModelSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +14,15 @@ router = APIRouter()
 
 @router.get("/posts")
 async def get_page_parsed_posts(web_processor: WebProcessor = Depends(get_webprocessor)):
-    return {
-        "current_post_parsing": await web_processor.get_current_post(),
-        "current_page_parsing": await web_processor.get_current_page(),
-        "dropped_ids": [id async for id in await web_processor.get_dropped_posts()]
-    }
+    dropped_ids = [id async for id in await web_processor.get_dropped_posts()]
+    current_page = await web_processor.get_current_page()
+    current_post = await web_processor.get_current_post()
+    post_model = PostsModelSerializer(current_post=current_post, current_page=current_page)
+
+    if len(dropped_ids) == 0:
+        return post_model
+    post_model.dropped_posts = dropped_ids
+    return post_model
 
 
 @router.get("/start")
