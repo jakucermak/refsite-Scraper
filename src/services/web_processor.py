@@ -53,7 +53,12 @@ class WebProcessor:
         parser = scraper.parse_response(response_text)
         tags = AsyncListIterator(scraper.get_tags(parser))
         q = scraper.retrieve_qa_content(parser, scraper.QASectionType.QUESTION)
+
         a = scraper.retrieve_qa_content(parser, scraper.QASectionType.ANSWER)
+
+        if None is q or None is a:
+            self.dropped_post_ids.append(post_id)
+            return
 
         try:
             post_id = int(post_id)

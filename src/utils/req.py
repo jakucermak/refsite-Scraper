@@ -22,7 +22,11 @@ def tor_req(url):
         logger.info(f'Changing proxy for {url} with tor')
         c.authenticate()
         c.signal(Signal.NEWNYM)
-        return requests.get(url, headers=headers, proxies=proxies)
+        try:
+            return requests.get(url, headers=headers, proxies=proxies)
+        except requests.exceptions.ConnectionError as e:
+            logger.error("Connection error", e)
+            return
 
 
 def get(url) -> Response:
