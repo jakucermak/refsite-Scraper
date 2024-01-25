@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 async def create_post(db: AsyncSession, id: int, q: str, a: str, date: str) -> Post:
     post_exists = await Post.check_for_post_exists(db, id)
-    date = datetime.strptime(date, "%d.%m.%Y").date()
+    date = datetime.strptime(date, "%d.%m.%y").date()
     if not post_exists:
-        post = Post(id=id, question=q, answer=a, date=date)
+        post = Post(id=id, question=q, answer=a, created_at=date)
         logger.info(f"Created post with id: {post.id}")
         return post
     logger.info(f"Post with id: {id} already exists")
