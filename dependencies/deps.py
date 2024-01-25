@@ -9,6 +9,12 @@ from src.services.web_processor import WebProcessor
 logger = logging.getLogger(__name__)
 
 
+class IgnoreSpecificLogFilter(logging.Filter):
+    def filter(self, record):
+        message_to_ignore = "Error while receiving a control message (SocketClosed): empty socket content"
+        return message_to_ignore not in record.getMessage()
+
+
 async def get_db() -> AsyncSession:
     db = AsyncSession()
     try:
