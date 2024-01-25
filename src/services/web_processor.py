@@ -23,13 +23,17 @@ class WebProcessor:
         return cls._instance
 
     def __init__(self, db: AsyncSession):
-
+        self.dropped_post_ids = []
         self.db = db
 
     async def __process_titled_page(self, page_no):
         logger.info(f'Processing page {page_no}')
         self.__current_page = page_no
-        response_text = scraper.scrape(get, page_no).text
+        try:
+            response_text = scraper.scrape(get, page_no).text
+        except Exception as e:
+            logger.error(f'Error while scraping page {page_no} with exception {e}')
+            return
         parser = scraper.parse_response(response_text)
         post_ids = scraper.get_ids(parser)
         self.__next_page = scraper.get_next_page(parser)
@@ -40,7 +44,12 @@ class WebProcessor:
 
     async def __process_detail_page(self, post_id: str):
         logger.info(f'Processing detail page {post_id}')
-        response_text = scraper.scrape(get, post_id=post_id).text
+        try:
+            response_text = scraper.scrape(get, post_id=post_id).text
+        except Exception as e:
+            logger.exception("Exception occurred while {}".format(e))
+            self.dropped_post_ids.append(post_id)
+            return
         parser = scraper.parse_response(response_text)
         tags = AsyncListIterator(scraper.get_tags(parser))
         q = scraper.retrieve_qa_content(parser, scraper.QASectionType.QUESTION)
@@ -76,3 +85,9 @@ class WebProcessor:
 
     async def get_current_post(self):
         return self.__current_post_url
+
+    async def get_dropped_posts(self) -> AsyncListIterator:
+        return AsyncListIterator(self.dropped_post_ids)
+
+    async def retry_post(self, post_id: str):
+        await self.__process_detail_page(post_id)

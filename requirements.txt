@@ -16,3 +16,4 @@ psycopg
 pytest-postgresql
 pytest-asyncio
 asyncpg
+pydantic
