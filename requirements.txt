@@ -5,7 +5,15 @@ requests
 requests[socks]
 requests[security]
 cryptography
-sqlalchemy
+sqlalchemy[asyncio]
 stem
 fake-useragent
 pytest
+alembic
+lxml
+python-dotenv
+psycopg
+pytest-postgresql
+pytest-asyncio
+asyncpg
+pydantic
